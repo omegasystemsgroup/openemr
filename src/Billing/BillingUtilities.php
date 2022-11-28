@@ -1761,6 +1761,25 @@ class BillingUtilities
                 array($newnumber, $_SESSION['authUser'])
             );
         }
+        
+        $encrow = sqlQuery(
+            "SELECT invoice_refno FROM form_encounter WHERE " .
+            "pid = ? AND encounter = ?", array($_SESSION['pid'], $_SESSION['encounter'])
+        );
+            //$invoice_refno = $encrow['invoice_refno'];
+        if (!empty($encrow['invoice_refno'])) {
+            $irnumber = $encrow['invoice_refno'];
+        } else {
+            $irnumber = sqlQuery("SELECT MAX(invoice_refno) AS invoice_refno FROM form_encounter");
+            if (!empty($irnumber['invoice_refno'])) {
+                //if invoice_ref is not empty, then increment by 1
+                $irnumber= sprintf('%06d', $irnumber['invoice_refno'] + 1);
+            } else {
+                //if empty start invoice number at 0000001
+                $irnumber= sprintf('%06d', 1);
+        
+            }
+        }
 
         return $irnumber;
     }
